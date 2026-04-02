@@ -4,6 +4,7 @@ import (
 	"backend/internal/models"
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 	"strings"
 )
@@ -105,6 +106,65 @@ func (r *TransactionRepository) FindAll(ctx context.Context, filter *models.Filt
 
 func (r *TransactionRepository) FindByID(ctx context.Context, id string) (*models.Transaction, error) {
 	query := `
-
+		SELECT id, user_id, amount, type, category, date, notes, created_at, updated_at
+		FROM transactions WHERE id = $1
 	`
+
+	transaction := &models.Transaction{}
+	err := r.db.QueryRowContext(ctx, query, id).Scan(
+		&transaction.ID, &transaction.UserID, &transaction.Amount, &transaction.Type, &transaction.Category, &transaction.Date, &transaction.Notes, &transaction.CreatedAt, &transaction.UpdatedAt,
+	)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, errors.New("transaction not found")
+		}
+		return nil, err
+	}
+	return transaction, nil
+}
+
+func (r *TransactionRepository) Update(ctx context.Context, id string, req *models.UpdateTransactionRequest) (*models.Transaction, error) {
+	query := `
+		UPDATE transactions
+		SET 
+			amount = COALESCE($1, amount),
+			type = COALESCE($2, type),
+			category = COALESCE($3, category),
+			date = COALESCE($4, date),
+			notes = COALESCE($5, notes),
+			updated_at = NOW()
+		WHERE id = $6
+		RETURNING id, user_id, amount, type, category, date, notes, created_at, updated_at
+	`
+
+	transaction := &models.Transaction{}
+	err := r.db.QueryRowContext(ctx, query,
+		req.Amount,
+		req.Type,
+		req.Category,
+		req.Date,
+		req.Notes,
+		id,
+	).Scan(
+		&transaction.ID, &transaction.UserID, &transaction.Amount, &transaction.Type, &transaction.Category, &transaction.Date, &transaction.Notes, &transaction.CreatedAt, &transaction.UpdatedAt,
+	)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, errors.New("transaction not found")
+		}
+		return nil, err
+	}
+	return transaction, nil
+}
+
+func (r *TransactionRepository) Delete(ctx context.Context, id string) error {
+	result, err := r.db.ExecContext(ctx, `DELETE FROM transactions WHERE id = $1`, id)
+	if err != nil {
+		return err
+	}
+	rows, _ := result.RowsAffected()
+	if rows == 0 {
+		return errors.New("transaction not found")
+	}
+	return nil
 }
