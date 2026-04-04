@@ -1,7 +1,12 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useLoginMutation } from "../redux/api/api";
+import { useDispatch } from "react-redux";
+import { setCredentials } from "../redux/apiSlice";
 
 export default function LoginPage() {
+    const [login] = useLoginMutation();
+    const dispatch = useDispatch();
     const navigate = useNavigate();
     const [form, setForm] = useState({ email: "", password: "" });
     const [loading, setLoading] = useState(false);
@@ -15,7 +20,7 @@ export default function LoginPage() {
 
     const handleSubmit = async () => {
         if (!form.email || !form.password) {
-            setError("Both fields are required.");
+            setError("Both feilds are required")
             return;
         }
 
@@ -23,24 +28,10 @@ export default function LoginPage() {
         setError("");
 
         try {
-            const res = await fetch("http://localhost:8080/api/v1/auth/login", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(form),
-            });
+            const data = await login(form).unwrap();
 
-            const data = await res.json();
+            dispatch(setCredentials(data));
 
-            if (!res.ok) {
-                setError(data.error || "Invalid credentials.");
-                return;
-            }
-
-            // token + user store karo
-            localStorage.setItem("token", data.token);
-            localStorage.setItem("user", JSON.stringify(data.user));
-
-            // role based redirect
             switch (data.user.role) {
                 case "admin":
                     navigate("/dashboard/admin");
@@ -49,14 +40,16 @@ export default function LoginPage() {
                     navigate("/dashboard/analyst");
                     break;
                 default:
-                    navigate("/dashboard");
+                    navigate("/dashboard")
+                    break;
             }
-        } catch {
-            setError("Server unreachable. Please try again.");
+
+        } catch (error) {
+            setError(err?.data?.error || "Invalid credentials");
         } finally {
             setLoading(false);
         }
-    };
+    }
 
     const handleKeyDown = (e) => {
         if (e.key === "Enter") handleSubmit();

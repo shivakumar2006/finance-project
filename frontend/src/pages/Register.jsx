@@ -1,5 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useRegisterMutation } from "../redux/api/api";
+import { useDispatch } from "react-redux";
+import { setCredentials } from "../redux/apiSlice";
 
 const roles = [
     {
@@ -29,6 +32,8 @@ const roles = [
 ];
 
 export default function SignupPage() {
+    const [register] = useRegisterMutation();
+    const dispatch = useDispatch();
     const navigate = useNavigate();
     const [form, setForm] = useState({
         name: "",
@@ -66,7 +71,7 @@ export default function SignupPage() {
 
     const handleSubmit = async () => {
         if (!form.role) {
-            setError("Please select a role to continue.");
+            setError("Please select a role to continue")
             return;
         }
 
@@ -74,22 +79,12 @@ export default function SignupPage() {
         setError("");
 
         try {
-            const res = await fetch("http://localhost:8080/api/v1/auth/register", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(form),
-            });
+            const data = await register(form).unwrap();
 
-            const data = await res.json();
+            // save in redux 
+            dispatch(setCredentials(data));
 
-            if (!res.ok) {
-                setError(data.error || "Registration failed.");
-                return;
-            }
-
-            localStorage.setItem("token", data.token);
-            localStorage.setItem("user", JSON.stringify(data.user));
-
+            // navigation based on role 
             switch (data.user.role) {
                 case "admin":
                     navigate("/dashboard/admin");
@@ -99,13 +94,14 @@ export default function SignupPage() {
                     break;
                 default:
                     navigate("/dashboard");
+                    break;
             }
-        } catch {
-            setError("Server unreachable. Please try again.");
+        } catch (error) {
+            setError(error?.data?.error || "Registration failed");
         } finally {
             setLoading(false);
         }
-    };
+    }
 
     return (
         <div
