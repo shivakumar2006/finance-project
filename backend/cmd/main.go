@@ -111,7 +111,7 @@ func main() {
 			r.Delete("/api/v1/transactions/{id}", txtHandler.Delete)
 
 			// users
-			r.Get("/pi/v1/users", userHandler.List)
+			r.Get("/api/v1/users", userHandler.List)
 			r.Get("/api/v1/users/{id}", userHandler.GetByID)
 			r.Put("/api/v1/users/{id}", userHandler.Update)
 			r.Delete("/api/v1/users/{id}", userHandler.Delete)
