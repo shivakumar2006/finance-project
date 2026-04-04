@@ -2,15 +2,16 @@ package handlers
 
 import (
 	"backend/internal/models"
+	"backend/internal/services"
 	"encoding/json"
 	"net/http"
 )
 
 type AuthHandler struct {
-	service *service.AuthService
+	service *services.AuthService
 }
 
-func NewAuthHandler(service *service.AuthService) *AuthHandler {
+func NewAuthHandler(service *services.AuthService) *AuthHandler {
 	return &AuthHandler{service: service}
 }
 

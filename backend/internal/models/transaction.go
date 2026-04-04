@@ -22,6 +22,7 @@ type Transaction struct {
 }
 
 type CreateTransactionRequest struct {
+	UserID   string          `json:"user_id"`
 	Amount   float64         `json:"amount"`
 	Type     TransactionType `json:"type"`
 	Category string          `json:"category"`
@@ -47,7 +48,7 @@ type FilterParams struct {
 }
 
 type PaginatedTransaction struct {
-	Data       *[]Transaction `json:"data"`
+	Data       []*Transaction `json:"data"`
 	Total      int            `json:"total"`
 	Page       int            `json:"page"`
 	Limit      int            `json:"limit"`

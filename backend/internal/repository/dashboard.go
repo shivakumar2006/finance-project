@@ -29,7 +29,7 @@ func (r *DashboardRepository) GetSummary(ctx context.Context) (float64, float64,
 	return income, expenses, nil
 }
 
-func (r *DashboardRepository) GetCategoryTotal(ctx context.Context) ([]*models.CategoryTotal, error) {
+func (r *DashboardRepository) GetCategoryTotals(ctx context.Context) ([]models.CategoryTotal, error) {
 	query := `
 		SELECT category, type, COALESCE(SUM(amount), 0) AS total 
 		FROM transactions
@@ -43,9 +43,9 @@ func (r *DashboardRepository) GetCategoryTotal(ctx context.Context) ([]*models.C
 	}
 	defer rows.Close()
 
-	var totals []*models.CategoryTotal
+	var totals []models.CategoryTotal
 	for rows.Next() {
-		total := &models.CategoryTotal{}
+		var total models.CategoryTotal
 		if err := rows.Scan(&total.Category, &total.Type, &total.Total); err != nil {
 			return nil, err
 		}
@@ -79,12 +79,12 @@ func (r *DashboardRepository) GetRecentActivity(ctx context.Context, limit int) 
 	return transactions, nil
 }
 
-func (r *DashboardRepository) GetMonthlyTrends(ctx context.Context) ([]*models.MonthlyTrend, error) {
+func (r *DashboardRepository) GetMonthlyTrends(ctx context.Context) ([]models.MonthlyTrend, error) {
 	query := `
 		SELECT 
 			TO_CHAR(date, 'YYYY-MM') AS month,
 			COALESCE(SUM(CASE WHEN type = 'income' THEN amount ELSE 0 END), 0) AS income,
-			COALESCE(SUM(CASE WHEN type = 'expense' THEN amount ELSE 0 END), 0) AS expense,
+			COALESCE(SUM(CASE WHEN type = 'expense' THEN amount ELSE 0 END), 0) AS expense
 		FROM transactions
 		GROUP BY TO_CHAR(date, 'YYYY-MM') 
 		ORDER By month DESC		
@@ -97,9 +97,9 @@ func (r *DashboardRepository) GetMonthlyTrends(ctx context.Context) ([]*models.M
 	}
 	defer rows.Close()
 
-	var trends []*models.MonthlyTrend
+	var trends []models.MonthlyTrend
 	for rows.Next() {
-		trend := &models.MonthlyTrend{}
+		var trend models.MonthlyTrend
 		if err := rows.Scan(&trend.Month, &trend.Income, &trend.Expense); err != nil {
 			return nil, err
 		}
