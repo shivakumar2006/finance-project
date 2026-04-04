@@ -13,6 +13,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	chimiddleware "github.com/go-chi/chi/v5/middleware"
+	"golang.org/x/time/rate"
 )
 
 func main() {
@@ -42,12 +43,22 @@ func main() {
 	//middleware
 	authMiddleware := middleware.NewAuthMiddleware(authService)
 
+	// rate limiter
+	rateLimiter := middleware.NewRateLimiter(rate.Limit(10), 20) // 10 means 10 requests per second per ip and 20 means burst 20 request at a time after that 429 too many requests
+
+	// liimt for authroutes
+	authLimit := middleware.NewRateLimiter(rate.Limit(3), 5) // 3 req/sec, burst 5 at a same time
+
+	// limit for normal routes
+	apiLimit := middleware.NewRateLimiter(rate.Limit(10), 20)
+
 	//routes
 	r := chi.NewRouter()
 
 	r.Use(chimiddleware.Logger)
 	r.Use(chimiddleware.Recoverer)
 	r.Use(chimiddleware.RequestID)
+	r.Use(rateLimiter.Limit)
 
 	// health check
 	r.Get("/health", func(w http.ResponseWriter, r *http.Request) {
@@ -56,23 +67,27 @@ func main() {
 	})
 
 	// public routes
-	r.Post("/api/v1/auth/register", authHandler.Register)
-	r.Post("/api/v1/auth/login", authHandler.Login)
+	r.Group(func(r chi.Router) {
+		r.Use(authLimit.Limit)
+		r.Post("/api/v1/auth/register", authHandler.Register)
+		r.Post("/api/v1/auth/login", authHandler.Login)
+	})
 
 	// protected routes
 	r.Group(func(r chi.Router) {
+		r.Use(apiLimit.Limit)
 		r.Use(authMiddleware.Authenticate)
 
 		// viewer, analyst, admin
-		r.Get("api/v1/transaction", txtHandler.List)
-		r.Get("/api/v1/transaction/{id}", txtHandler.GetByID)
+		r.Get("/api/v1/transactions", txtHandler.List)
+		r.Get("/api/v1/transactions/{id}", txtHandler.GetByID)
 		r.Get("/api/v1/dashboard", dashboardHandler.Summary)
 
 		// analyst + admin only
 		r.Group(func(r chi.Router) {
 			r.Use(authMiddleware.RequireRole(models.RoleAnalyst, models.RoleAdmin))
-			r.Get("api/v1/dashboard/trends", dashboardHandler.Trends)
-			r.Get("api/v1/dashboard/categories", dashboardHandler.CategoryTotals)
+			r.Get("/api/v1/dashboard/trends", dashboardHandler.Trends)
+			r.Get("/api/v1/dashboard/categories", dashboardHandler.CategoryTotals)
 		})
 
 		// admin only
@@ -80,15 +95,15 @@ func main() {
 			r.Use(authMiddleware.RequireRole(models.RoleAdmin))
 
 			// transaction
-			r.Post("api/v1/transactions", txtHandler.Create)
-			r.Put("api/v1/transactions/{id}", txtHandler.Update)
-			r.Delete("api/v1/transactions/{id}", txtHandler.Delete)
+			r.Post("/api/v1/transactions", txtHandler.Create)
+			r.Put("/api/v1/transactions/{id}", txtHandler.Update)
+			r.Delete("/api/v1/transactions/{id}", txtHandler.Delete)
 
 			// users
-			r.Get("api/v1/users", userHandler.List)
-			r.Get("api/v1/users/{id}", userHandler.GetByID)
-			r.Put("api/v1/users/{id}", userHandler.Update)
-			r.Delete("api/v1/users/{id}", userHandler.Delete)
+			r.Get("/pi/v1/users", userHandler.List)
+			r.Get("/api/v1/users/{id}", userHandler.GetByID)
+			r.Put("/api/v1/users/{id}", userHandler.Update)
+			r.Delete("/api/v1/users/{id}", userHandler.Delete)
 		})
 	})
 
