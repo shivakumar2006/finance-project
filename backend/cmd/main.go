@@ -13,6 +13,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	chimiddleware "github.com/go-chi/chi/v5/middleware"
+	"github.com/rs/cors"
 	"golang.org/x/time/rate"
 )
 
@@ -54,6 +55,16 @@ func main() {
 
 	//routes
 	r := chi.NewRouter()
+
+	// cors
+	c := cors.New(cors.Options{
+		AllowedOrigins:   []string{"http://localhost:5174"},
+		AllowedMethods:   []string{"GET", "PUT", "UPDATE", "PATCH", "DELETE"},
+		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type"},
+		AllowCredentials: true,
+	})
+
+	r.Use(c.Handler)
 
 	r.Use(chimiddleware.Logger)
 	r.Use(chimiddleware.Recoverer)
