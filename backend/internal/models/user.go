@@ -1,6 +1,10 @@
 package models
 
-import "time"
+import (
+	"time"
+
+	"github.com/google/uuid"
+)
 
 type Role string
 type Status string
@@ -17,7 +21,7 @@ const (
 )
 
 type User struct {
-	ID           string    `json:"id" db:"id"`
+	ID           uuid.UUID `json:"id" db:"id"`
 	Name         string    `json:"name" db:"name"`
 	Email        string    `json:"email" db:"email"`
 	PasswordHash string    `json:"-" db:"password_hash"`

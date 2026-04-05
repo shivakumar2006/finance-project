@@ -25,7 +25,7 @@ func (r *TransactionRepository) Create(ctx context.Context, transac *models.Tran
 	`
 	created := &models.Transaction{}
 	err := r.db.QueryRowContext(ctx, query,
-		transac.ID, transac.UserID, transac.Amount, transac.Type, transac.Category, transac.Date, transac.Notes, transac.CreatedAt, transac.UpdatedAt,
+		transac.ID, transac.UserID, transac.Amount, transac.Type, transac.Category, transac.Date, transac.Notes,
 	).Scan(
 		&created.ID, &created.UserID, &created.Amount, &created.Type, &created.Category, &created.Date, &created.Notes, &created.CreatedAt, &created.UpdatedAt,
 	)
@@ -72,11 +72,18 @@ func (r *TransactionRepository) FindAll(ctx context.Context, filter *models.Filt
 	}
 
 	//pagination
+	if filter.Page <= 0 {
+		filter.Page = 1
+	}
+	if filter.Limit <= 0 {
+		filter.Limit = 10
+	}
 	offset := (filter.Page - 1) * filter.Limit
+
 	args = append(args, filter.Limit, offset)
 
 	dataQuery := fmt.Sprintf(`
-		SELECT id, user_id, amount, type, category, date, notes, created_at, upated_at
+		SELECT id, user_id, amount, type, category, date, notes, created_at, updated_at
 		FROM transactions
 		WHERE %s 
 		ORDER BY date DESC

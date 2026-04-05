@@ -4,6 +4,7 @@ import (
 	"backend/internal/models"
 	"backend/internal/services"
 	"encoding/json"
+	"log"
 	"net/http"
 )
 
@@ -16,6 +17,7 @@ func NewAuthHandler(service *services.AuthService) *AuthHandler {
 }
 
 func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
+	log.Println("🔥 REGISTER HIT")
 	var req models.RegisterRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		writeError(w, http.StatusBadRequest, "invalid request body")

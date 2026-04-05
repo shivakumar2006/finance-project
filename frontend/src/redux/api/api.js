@@ -5,11 +5,15 @@ export const Api = createApi({
     baseQuery: fetchBaseQuery({
         baseUrl: "http://localhost:8080/api/v1",
         prepareHeaders: (headers, { getState }) => {
-            const token = getState().auth.token;
+            const token =
+                getState().auth.token || localStorage.getItem("token");
+
             if (token) {
                 headers.set("Authorization", `Bearer ${token}`);
             }
+
             headers.set("Content-Type", "application/json");
+
             return headers;
         },
     }),
@@ -64,7 +68,10 @@ export const Api = createApi({
 
         // tansactions 
         getTransaction: builder.query({
-            query: () => "/transactions",
+            query: (params) => ({
+                url: "/transactions",
+                params, // ✅ THIS WAS MISSING
+            }),
             providesTags: ["Transaction"]
         }),
 
@@ -93,7 +100,7 @@ export const Api = createApi({
 
         deleteTransaction: builder.mutation({
             query: (id) => ({
-                url: `/transaction/${id}`,
+                url: `/transactions/${id}`,
                 method: "DELETE",
             }),
             invalidatesTags: ["Transaction"]

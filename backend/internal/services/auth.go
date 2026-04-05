@@ -44,7 +44,7 @@ func (s *AuthService) Register(ctx context.Context, req *models.RegisterRequest)
 	}
 
 	user := &models.User{
-		ID:           uuid.New().String(),
+		ID:           uuid.New(),
 		Name:         req.Name,
 		Email:        req.Email,
 		PasswordHash: string(hash),
@@ -116,13 +116,13 @@ func (s *AuthService) ValidateToken(tokenStr string) (*models.JWTClaims, error) 
 
 func (s *AuthService) generateToken(user *models.User) (string, error) {
 	claims := &models.JWTClaims{
-		UserID: user.ID,
+		UserID: user.ID.String(),
 		Email:  user.Email,
 		Role:   user.Role,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(24 * time.Hour)),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
-			Subject:   user.ID,
+			Subject:   user.ID.String(),
 		},
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)

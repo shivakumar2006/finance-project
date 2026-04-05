@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useLoginMutation } from "../redux/api/api";
 import { useDispatch } from "react-redux";
 import { setCredentials } from "../redux/apiSlice";
+import { toast, Bounce } from "react-toastify";
 
 export default function LoginPage() {
     const [login] = useLoginMutation();
@@ -32,6 +33,19 @@ export default function LoginPage() {
 
             dispatch(setCredentials(data));
 
+            toast.success(`Logged in as ${data?.user?.role}`, {
+                position: "bottom-right",
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: false,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "dark",
+                transition: Bounce,
+            })
+
+
             switch (data.user.role) {
                 case "admin":
                     navigate("/dashboard/admin");
@@ -43,9 +57,19 @@ export default function LoginPage() {
                     navigate("/dashboard")
                     break;
             }
-
         } catch (error) {
             setError(err?.data?.error || "Invalid credentials");
+            toast.error(err?.data?.error || "Invalid credentials", {
+                position: "bottom-right",
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: false,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "dark",
+                transition: Bounce,
+            })
         } finally {
             setLoading(false);
         }

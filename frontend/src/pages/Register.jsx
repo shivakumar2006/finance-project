@@ -87,13 +87,13 @@ export default function SignupPage() {
             // navigation based on role 
             switch (data.user.role) {
                 case "admin":
-                    navigate("/dashboard/admin");
+                    navigate("/login");
                     break;
                 case "analyst":
-                    navigate("/dashboard/analyst");
+                    navigate("/login");
                     break;
                 default:
-                    navigate("/dashboard");
+                    navigate("/login");
                     break;
             }
         } catch (error) {

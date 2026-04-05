@@ -35,7 +35,7 @@ func NewRateLimiter(r rate.Limit, burst int) *RateLimiter {
 // every ip have their own limiter
 func (rl *RateLimiter) getLimiter(ip string) *rate.Limiter {
 	rl.mu.Lock()
-	defer rl.mu.Lock()
+	defer rl.mu.Unlock()
 
 	c, exists := rl.clients[ip]
 	if !exists {

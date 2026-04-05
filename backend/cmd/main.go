@@ -59,8 +59,8 @@ func main() {
 	// cors
 	c := cors.New(cors.Options{
 		AllowedOrigins:   []string{"http://localhost:5174"},
-		AllowedMethods:   []string{"GET", "PUT", "UPDATE", "PATCH", "DELETE"},
-		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type"},
+		AllowedMethods:   []string{"GET", "POST", "PUT", "OPTIONS", "PATCH", "DELETE"},
+		AllowedHeaders:   []string{"*"},
 		AllowCredentials: true,
 	})
 
@@ -70,6 +70,10 @@ func main() {
 	r.Use(chimiddleware.Recoverer)
 	r.Use(chimiddleware.RequestID)
 	r.Use(rateLimiter.Limit)
+
+	r.Options("/*", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+	})
 
 	// health check
 	r.Get("/health", func(w http.ResponseWriter, r *http.Request) {
@@ -103,7 +107,7 @@ func main() {
 
 		// admin only
 		r.Group(func(r chi.Router) {
-			r.Use(authMiddleware.RequireRole(models.RoleAdmin))
+			r.Use(authMiddleware.RequireRole(models.RoleAdmin, models.RoleAnalyst))
 
 			// transaction
 			r.Post("/api/v1/transactions", txtHandler.Create)

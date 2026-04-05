@@ -47,6 +47,7 @@ func (s *TransactionService) Create(ctx context.Context, req *models.CreateTrans
 
 	transac := &models.Transaction{
 		ID:       uuid.New().String(),
+		UserID:   req.UserID,
 		Amount:   req.Amount,
 		Type:     req.Type,
 		Category: req.Category,
