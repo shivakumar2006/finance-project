@@ -40,7 +40,7 @@ type BcryptConfig struct {
 
 func Load() *Config {
 	if err := godotenv.Load(); err != nil {
-		log.Fatal("Error loading .env")
+		log.Println("Error loading .env")
 	}
 
 	cost, _ := strconv.Atoi(os.Getenv("BCRYPT_COST"))
