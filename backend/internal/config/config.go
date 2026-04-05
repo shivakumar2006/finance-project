@@ -48,12 +48,12 @@ func Load() *Config {
 	return &Config{
 		App: AppConfig{
 			Port: getEnv("APP_PORT", "8080"),
-			Env:  getEnv("APP_ENV", "development"),
+			Env:  getEnv("APP_ENV", "production"),
 		},
 		Database: DatabaseConfig{
-			Host:     getEnv("DB_HOST", "localhost"),
+			Host:     mustEnv("DB_HOST"),
 			Port:     getEnv("DB_PORT", "5432"),
-			User:     getEnv("DB_USER", "postgres"),
+			User:     mustEnv("DB_USER"),
 			Password: mustEnv("DB_PASSWORD"),
 			Name:     mustEnv("DB_NAME"),
 			SSLMode:  mustEnv("DB_SSLMODE"),
