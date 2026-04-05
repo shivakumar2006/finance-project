@@ -58,7 +58,7 @@ func main() {
 
 	// cors
 	c := cors.New(cors.Options{
-		AllowedOrigins:   []string{"http://localhost:5174"},
+		AllowedOrigins:   []string{"https://finaos.netlify.app"},
 		AllowedMethods:   []string{"GET", "POST", "PUT", "OPTIONS", "PATCH", "DELETE"},
 		AllowedHeaders:   []string{"*"},
 		AllowCredentials: true,
