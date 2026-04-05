@@ -35,7 +35,7 @@ export default function LoginPage() {
 
             toast.success(`Logged in as ${data?.user?.role}`, {
                 position: "bottom-right",
-                autoClose: 5000,
+                autoClose: 2000,
                 hideProgressBar: false,
                 closeOnClick: false,
                 pauseOnHover: true,
@@ -61,7 +61,7 @@ export default function LoginPage() {
             setError(err?.data?.error || "Invalid credentials");
             toast.error(err?.data?.error || "Invalid credentials", {
                 position: "bottom-right",
-                autoClose: 5000,
+                autoClose: 2000,
                 hideProgressBar: false,
                 closeOnClick: false,
                 pauseOnHover: true,
@@ -184,7 +184,7 @@ export default function LoginPage() {
                 />
 
                 {/* Logo */}
-                <div className="relative flex items-center gap-3">
+                <div onClick={() => navigate("/")} className="relative flex items-center cursor-pointer gap-3">
                     <div
                         className="w-9 h-9 rounded-xl flex items-center justify-center font-bold text-base"
                         style={{

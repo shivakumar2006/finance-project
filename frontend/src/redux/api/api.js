@@ -72,12 +72,12 @@ export const Api = createApi({
                 url: "/transactions",
                 params, // ✅ THIS WAS MISSING
             }),
-            providesTags: ["Transaction"]
+            providesTags: ["Transaction", "Dashboard"]
         }),
 
         getTransactionById: builder.query({
             query: (id) => `/transactions/${id}`,
-            providesTags: ["Transaction"]
+            providesTags: ["Transaction", "Dashboard"]
         }),
 
         createTransaction: builder.mutation({
@@ -86,7 +86,7 @@ export const Api = createApi({
                 method: "POST",
                 body: data,
             }),
-            invalidatesTags: ["Transaction"]
+            invalidatesTags: ["Transaction", "Dashboard"]
         }),
 
         updateTransaction: builder.mutation({
@@ -95,7 +95,7 @@ export const Api = createApi({
                 method: "PUT",
                 body: data,
             }),
-            invalidatesTags: ["Transaction"]
+            invalidatesTags: ["Transaction", "Dashboard"]
         }),
 
         deleteTransaction: builder.mutation({
@@ -103,7 +103,7 @@ export const Api = createApi({
                 url: `/transactions/${id}`,
                 method: "DELETE",
             }),
-            invalidatesTags: ["Transaction"]
+            invalidatesTags: ["Transaction", "Dashboard"]
         }),
 
         // dashboard 

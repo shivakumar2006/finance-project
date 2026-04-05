@@ -5,9 +5,12 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import LoginPage from './pages/Login';
 import SignupPage from './pages/Register';
 import Dashboard from './pages/Dashboard';
+import FeaturesPage from './pages/Features';
 
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import RolesPage from './pages/RolesPage';
+import ApiDocsPage from './pages/ApiDocsPage';
 
 function PrivateRoute({ children }) {
     const token = localStorage.getItem("token");
@@ -24,6 +27,9 @@ const App = () => {
                 <Route path="/dashboard/*" element={
                     <PrivateRoute><Dashboard /></PrivateRoute>
                 } />
+                <Route path='/features' element={<FeaturesPage />} />
+                <Route path='/roles' element={<RolesPage />} />
+                <Route path='/api' element={<ApiDocsPage />} />
             </Routes>
             <ToastContainer
                 position="top-right"

@@ -65,19 +65,18 @@ func (r *UserRepository) Update(ctx context.Context, id string, req *models.Upda
 	query := `
 		UPDATE users 
 		SET 
-			name = COALESCE($1, name),
-			role = COLAESCE($2, role),
-			status = COlAESCE($2, status),
+			role = COALESCE($1, role),
+			status = COALESCE($2, status),
 			updated_at = NOW()
-		WHERE id = $4
+		WHERE id = $3
 		RETURNING id, name, email, role, status, created_at, updated_at	
 	`
 
 	user := &models.User{}
 	err := r.db.QueryRowContext(ctx, query,
-		req.Name,
 		req.Role,
 		req.Status,
+		id,
 	).Scan(
 		&user.ID, &user.Name, &user.Email,
 		&user.Role, &user.Status,

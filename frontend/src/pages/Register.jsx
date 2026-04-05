@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useRegisterMutation } from "../redux/api/api";
 import { useDispatch } from "react-redux";
 import { setCredentials } from "../redux/apiSlice";
+import { toast, Bounce } from "react-toastify";
 
 const roles = [
     {
@@ -96,8 +97,31 @@ export default function SignupPage() {
                     navigate("/login");
                     break;
             }
+
+            toast.success(`Successfully register as ${data?.user?.role}`, {
+                position: "bottom-right",
+                autoClose: 2000,
+                hideProgressBar: false,
+                closeOnClick: false,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "dark",
+                transition: Bounce,
+            })
         } catch (error) {
             setError(error?.data?.error || "Registration failed");
+            toast.error(error?.data?.error || "Registration failed", {
+                position: "bottom-right",
+                autoClose: 2000,
+                hideProgressBar: false,
+                closeOnClick: false,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "dark",
+                transition: Bounce,
+            })
         } finally {
             setLoading(false);
         }

@@ -275,9 +275,14 @@ export default function HomePage() {
                 </div>
 
                 <div className="hidden md:flex items-center gap-8">
-                    {["Features", "Dashboard", "Roles", "API"].map((item) => (
+                    {[
+                        { label: "Features", path: "/features" },
+                        { label: "Roles", path: "/roles" },
+                        { label: "API", path: "/api" },
+                    ].map((item) => (
                         <span
-                            key={item}
+                            key={item.label}
+                            onClick={() => navigate(item.path)}
                             className="text-sm cursor-pointer hover:opacity-100 transition-opacity duration-200 tracking-wide"
                             style={{
                                 color: "#5c4a22",
@@ -286,7 +291,7 @@ export default function HomePage() {
                                 letterSpacing: "0.1em",
                             }}
                         >
-                            {item}
+                            {item.label}
                         </span>
                     ))}
                 </div>

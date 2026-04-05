@@ -159,7 +159,7 @@ export default function Dashboard() {
         })
     };
 
-    // console.log("SUMMARY RAW:", summary);
+    console.log("SUMMARY RAW:", summary);
     // console.log("TX RAW:", txData);
     // console.log("TRENDS RAW:", trendsData);
     // console.log("user data", usersData);
