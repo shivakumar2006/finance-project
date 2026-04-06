@@ -104,7 +104,7 @@ docker-compose up -d
 ```
 
 **Running in seconds:**
-- 🌐 Frontend → http://localhost:3000
+- 🌐 Frontend → http://localhost:5173
 - ⚡ Backend API → http://localhost:8080
 - ❤️ Health check → http://localhost:8080/health
 
