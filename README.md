@@ -2,6 +2,8 @@
 
 A full-stack finance dashboard system with role-based access control, built with **Go**, **PostgreSQL**, and **React**. Features JWT authentication, three-tier RBAC, financial records management, and real-time dashboard analytics.
 
+> 🐳 Docker images published on Docker Hub — no local setup required.
+
 ---
 
 ## 🧱 Tech Stack
@@ -46,28 +48,10 @@ finance-backend/
 │   └── schema.sql               # Table definitions
 ├── internal/
 │   ├── handlers/                # HTTP layer
-│   │   ├── auth.go
-│   │   ├── user.go
-│   │   ├── transaction.go
-│   │   └── dashboard.go
 │   ├── services/                # Business logic
-│   │   ├── auth.go
-│   │   ├── user.go
-│   │   ├── transaction.go
-│   │   └── dashboard.go
 │   ├── repository/              # DB queries
-│   │   ├── auth.go
-│   │   ├── user.go
-│   │   ├── transaction.go
-│   │   └── dashboard.go
-│   ├── middleware/
-│   │   ├── auth.go              # JWT verification
-│   │   └── ratelimiter.go       # Token bucket per IP
+│   ├── middleware/              # JWT + Rate limiter
 │   └── models/                  # Structs + request types
-│       ├── user.go
-│       ├── transaction.go
-│       ├── auth.go
-│       └── dashboard.go
 ├── .env.example
 ├── Dockerfile
 ├── docker-compose.yml
@@ -75,25 +59,10 @@ finance-backend/
 
 finance-frontend/
 ├── src/
-│   ├── pages/
-│   │   ├── HomePage.jsx
-│   │   ├── LoginPage.jsx
-│   │   ├── SignupPage.jsx
-│   │   ├── Dashboard.jsx
-│   │   ├── FeaturesPage.jsx
-│   │   ├── RolesPage.jsx
-│   │   └── ApiDocsPage.jsx
-│   ├── components/
-│   │   ├── Sidebar.jsx
-│   │   ├── StatsCards.jsx
-│   │   ├── TrendsChart.jsx
-│   │   ├── CategoryChart.jsx
-│   │   ├── TransactionTable.jsx
-│   │   ├── TransactionForm.jsx
-│   │   └── UserTable.jsx
+│   ├── pages/                   # HomePage, Login, Signup, Dashboard, Docs
+│   ├── components/              # Sidebar, Charts, Tables, Forms
 │   ├── App.jsx
-│   ├── main.jsx
-│   └── index.css
+│   └── main.jsx
 ├── Dockerfile
 └── nginx.conf
 ```
@@ -115,113 +84,123 @@ finance-frontend/
 | View users | ✗ | ✗ | ✓ |
 | Manage users | ✗ | ✗ | ✓ |
 
-RBAC is enforced at the **middleware level** — not just the UI. Even direct API calls will return `403 Forbidden` if the role doesn't match.
+RBAC is enforced at the **middleware level** — not just the UI. Even direct API calls return `403 Forbidden` if the role does not match.
 
 ---
 
 ## 🚀 Quick Start
 
-### Option 1 — Docker (Recommended)
+### Option 1 — Docker Hub (Fastest, no build needed)
+
+> Requires only Docker Desktop. No Go, Node, or PostgreSQL needed locally.
 
 ```bash
-# Clone the repo
+# 1. Clone repo (for docker-compose.yml)
 git clone https://github.com/shivakumar2006/finance-backend.git
 cd finance-backend
 
-# Copy env file
-cp .env.example .env
-
-# Run everything
-docker-compose up --build
+# 2. Run — pulls images from Docker Hub automatically
+docker-compose up -d
 ```
 
-That's it. Backend on `http://localhost:8080`, Frontend on `http://localhost:5173`.
+**Running in seconds:**
+- 🌐 Frontend → http://localhost:3000
+- ⚡ Backend API → http://localhost:8080
+- ❤️ Health check → http://localhost:8080/health
+
+**Docker Hub Images:**
+- `shivakumar2006/finance-backend:latest`
+- `shivakumar2006/finance-frontend:latest`
 
 ---
 
-### Option 2 — Local Setup
-
-**Prerequisites:**
-- Go 1.22+
-- PostgreSQL 15+
-- Node.js 18+
-
-**Backend:**
+### Option 2 — Build from Source
 
 ```bash
-# Clone and enter
 git clone https://github.com/shivakumar2006/finance-backend.git
 cd finance-backend
+docker-compose up --build -d
+```
 
-# Copy and fill env
+---
+
+### Option 3 — Local Setup (without Docker)
+
+**Prerequisites:** Go 1.22+, PostgreSQL 15+, Node.js 18+
+
+**Backend:**
+```bash
 cp .env.example .env
-
-# Create database
 psql -U postgres -c "CREATE DATABASE finance_db;"
-
-# Run schema
 psql -U postgres -d finance_db -f db/schema.sql
-
-# Install dependencies
 go mod tidy
-
-# Run server
 go run cmd/main.go
 ```
 
 **Frontend:**
-
 ```bash
 cd finance-frontend
-
-# Install dependencies
 yarn install
-
-# Run dev server
 yarn dev
 ```
 
 ---
 
+## 🐳 Docker Commands
+
+```bash
+# Start (pulls from Docker Hub automatically)
+docker-compose up -d
+
+# Build from source
+docker-compose up --build -d
+
+# View logs
+docker-compose logs -f backend
+docker-compose logs -f frontend
+
+# Stop
+docker-compose down
+
+# Stop + clear database
+docker-compose down -v
+
+# Update to latest images
+docker-compose pull && docker-compose up -d
+```
+
+> ⚠️ **Port conflict fix:** If port 5432 is already in use (local PostgreSQL running), remove the `ports` section under postgres in `docker-compose.yml` — the backend connects to it internally via service name anyway.
+
+---
+
 ## ⚙️ Environment Variables
 
-Copy `.env.example` to `.env` and fill in:
-
 ```env
-# App
 APP_PORT=8080
 APP_ENV=development
-
-# Database
 DB_HOST=localhost
 DB_PORT=5432
 DB_USER=postgres
 DB_PASSWORD=postgres
 DB_NAME=finance_db
 DB_SSLMODE=disable
-
-# JWT
 JWT_SECRET=your-super-secret-key-change-in-production
 JWT_EXPIRY=24h
-
-# Bcrypt
 BCRYPT_COST=12
 ```
 
-> ⚠️ Change `JWT_SECRET` to a strong random string in production.
+> ⚠️ Always change `JWT_SECRET` in production.
 
 ---
 
 ## 🌱 Seed Data
-
-Create demo users and transactions in one command:
 
 ```bash
 chmod +x scripts/seed.sh
 ./scripts/seed.sh
 ```
 
-**Demo credentials (after seeding):**
+**Demo credentials:**
 
 | Role | Email | Password |
 |---|---|---|
@@ -238,33 +217,23 @@ chmod +x scripts/seed.sh
 **Auth header:** `Authorization: Bearer <token>`
 
 ### Authentication
-
 | Method | Endpoint | Access |
 |---|---|---|
 | POST | `/auth/register` | Public |
 | POST | `/auth/login` | Public |
 
 ### Transactions
-
 | Method | Endpoint | Access |
 |---|---|---|
 | GET | `/transactions` | All roles |
 | GET | `/transactions/:id` | All roles |
-| POST | `/transactions` | Admin |
-| PUT | `/transactions/:id` | Admin |
-| DELETE | `/transactions/:id` | Admin |
+| POST | `/transactions` | Admin only |
+| PUT | `/transactions/:id` | Admin only |
+| DELETE | `/transactions/:id` | Admin only |
 
-**Query params for listing:**
-```
-?type=income
-?category=Salary
-?start_date=2025-01-01
-?end_date=2025-12-31
-?page=1&limit=10
-```
+**Query params:** `?type=income&category=Salary&start_date=2025-01-01&page=1&limit=10`
 
 ### Dashboard
-
 | Method | Endpoint | Access |
 |---|---|---|
 | GET | `/dashboard` | All roles |
@@ -272,13 +241,12 @@ chmod +x scripts/seed.sh
 | GET | `/dashboard/categories` | Analyst + Admin |
 
 ### Users
-
 | Method | Endpoint | Access |
 |---|---|---|
-| GET | `/users` | Admin |
-| GET | `/users/:id` | Admin |
-| PUT | `/users/:id` | Admin |
-| DELETE | `/users/:id` | Admin |
+| GET | `/users` | Admin only |
+| GET | `/users/:id` | Admin only |
+| PUT | `/users/:id` | Admin only |
+| DELETE | `/users/:id` | Admin only |
 
 ### Sample Requests
 
@@ -293,18 +261,14 @@ curl -X POST http://localhost:8080/api/v1/auth/login \
   -H "Content-Type: application/json" \
   -d '{"email":"shiva@demo.com","password":"pass123"}'
 
-# Create transaction (admin)
+# Create transaction
 curl -X POST http://localhost:8080/api/v1/transactions \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer <token>" \
-  -d '{"amount":50000,"type":"income","category":"Salary","date":"2025-01-01","notes":"Monthly salary"}'
+  -d '{"amount":50000,"type":"income","category":"Salary","date":"2025-01-01"}'
 
-# Get dashboard
+# Dashboard summary
 curl http://localhost:8080/api/v1/dashboard \
-  -H "Authorization: Bearer <token>"
-
-# List transactions with filters
-curl "http://localhost:8080/api/v1/transactions?type=income&page=1&limit=10" \
   -H "Authorization: Bearer <token>"
 ```
 
@@ -315,19 +279,18 @@ curl "http://localhost:8080/api/v1/transactions?type=income&page=1&limit=10" \
 - **JWT** — Role embedded in claims, verified on every request via middleware
 - **bcrypt** — Password hashing with cost factor 12
 - **Rate Limiting** — Token bucket per IP: 10 req/sec globally, 3 req/sec on auth routes
-- **Input Validation** — Validated at both handler and service layer
+- **Input Validation** — Validated at handler and service layer both
 - **Error Messages** — Intentionally vague on auth failures (prevents user enumeration)
 
 ---
 
 ## 📊 Dashboard Analytics
 
-The `/dashboard` endpoint returns aggregated data computed via PostgreSQL:
+All aggregations computed via PostgreSQL:
 
-- **Total Income** — `SUM` of all income transactions
-- **Total Expenses** — `SUM` of all expense transactions
+- **Total Income / Expenses** — `SUM` grouped by type
 - **Net Balance** — `income - expenses`
-- **Category Totals** — `GROUP BY category, type`
+- **Category Totals** — `GROUP BY category, type ORDER BY total DESC`
 - **Recent Activity** — Last 5 transactions by `created_at`
 - **Monthly Trends** — 12-month `GROUP BY TO_CHAR(date, 'YYYY-MM')`
 
@@ -335,33 +298,11 @@ The `/dashboard` endpoint returns aggregated data computed via PostgreSQL:
 
 ## 🧠 Assumptions Made
 
-1. **Role assignment at registration** — Any role can be assigned at signup. In a real system, only admins would assign roles.
-2. **Soft delete not implemented** — Users and transactions are hard deleted. Can be added with a `deleted_at` column.
-3. **No refresh tokens** — JWT expires in 24h. User must re-login after expiry.
-4. **Single currency** — All amounts assumed to be in INR (₹).
-5. **No file uploads** — Transaction notes are text only.
-
----
-
-## 🐳 Docker
-
-```bash
-# Build and run everything
-docker-compose up --build
-
-# Run in background
-docker-compose up -d
-
-# Stop
-docker-compose down
-
-# Stop and remove volumes (clears DB)
-docker-compose down -v
-
-# View logs
-docker-compose logs -f backend
-docker-compose logs -f frontend
-```
+1. **Role at registration** — Any role assignable at signup. In production, only admins would promote users.
+2. **Hard delete** — No soft delete. Can be extended with `deleted_at` for audit trails.
+3. **No refresh tokens** — JWT expires in 24h, user re-logs in after.
+4. **Single currency** — All amounts in INR (₹).
+5. **Single instance rate limiter** — Token bucket works per instance. Redis needed for multi-instance.
 
 ---
 
