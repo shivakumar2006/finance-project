@@ -135,7 +135,7 @@ cp .env.example .env
 docker-compose up --build
 ```
 
-That's it. Backend on `http://localhost:8080`, Frontend on `http://localhost:3000`.
+That's it. Backend on `http://localhost:8080`, Frontend on `http://localhost:5173`.
 
 ---
 
