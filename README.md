@@ -14,6 +14,7 @@ A full-stack finance dashboard system with role-based access control, built with
 | Database | PostgreSQL 15 |
 | Auth | JWT (golang-jwt/jwt v5) + bcrypt |
 | Frontend | React 18, Tailwind CSS v3 |
+| State Management | Redux Toolkit + RTK Query|
 | Charts | Recharts |
 | Container | Docker + Docker Compose |
 
@@ -61,6 +62,7 @@ finance-frontend/
 ├── src/
 │   ├── pages/                   # HomePage, Login, Signup, Dashboard, Docs
 │   ├── components/              # Sidebar, Charts, Tables, Forms
+|   |__ redux/            
 │   ├── App.jsx
 │   └── main.jsx
 ├── Dockerfile
