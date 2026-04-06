@@ -1,0 +1,49 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: finance_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: finance_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./db/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+
+  backend:
+    image: shivakumar2006/finance-backend:latest
+    container_name: finance_backend
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      APP_PORT: 8080
+      APP_ENV: production
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_NAME: finance_db
+      DB_SSLMODE: disable
+      JWT_SECRET: super-secret-key
+      JWT_EXPIRY: 24h
+      BCRYPT_COST: 12
+    depends_on:
+      - postgres
+
+  frontend:
+    image: shivakumar2006/finance-frontend:latest
+    container_name: finance_frontend
+    restart: unless-stopped
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend
+
+volumes:
+  pgdata:
