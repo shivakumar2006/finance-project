@@ -98,8 +98,8 @@ RBAC is enforced at the **middleware level** — not just the UI. Even direct AP
 
 ```bash
 # 1. Clone repo (for docker-compose.yml)
-git clone https://github.com/shivakumar2006/finance-backend.git
-cd finance-backend
+git clone https://github.com/shivakumar2006/finance-project.git
+cd finance-project
 
 # 2. Run — pulls images from Docker Hub automatically
 docker-compose up -d
@@ -119,8 +119,8 @@ docker-compose up -d
 ### Option 2 — Build from Source
 
 ```bash
-git clone https://github.com/shivakumar2006/finance-backend.git
-cd finance-backend
+git clone https://github.com/shivakumar2006/finance-project.git
+cd finance-project
 docker-compose up --build -d
 ```
 
@@ -132,6 +132,7 @@ docker-compose up --build -d
 
 **Backend:**
 ```bash
+cd ./finance-project/backend
 cp .env.example .env
 psql -U postgres -c "CREATE DATABASE finance_db;"
 psql -U postgres -d finance_db -f db/schema.sql
@@ -141,7 +142,7 @@ go run cmd/main.go
 
 **Frontend:**
 ```bash
-cd finance-frontend
+cd ./finance-project/frontend
 yarn install
 yarn dev
 ```
